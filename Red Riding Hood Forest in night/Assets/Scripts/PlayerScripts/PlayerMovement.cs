@@ -1,11 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Movement")]
+    private float moveSpeed;
+    public float walkSpeed;
+    public float sprintSpeed;
+    public float groundDrag;
 
-    public float moveSpeed;
     public Transform orientation;
 
     float horizontalInput;
@@ -15,12 +20,24 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody rb;
 
-    public float groundDrag;
+    public MovementState state;
+
+    public enum MovementState
+    {
+        walking,
+        sprinting,
+        air
+    }
+
     public float playerHeight;
     public LayerMask whatIsGround;
     bool grounded;
 
+    [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode sprintKey = KeyCode.LeftShift;
+
+    [Header("Jumping")]
     public float jumpForce;
     public float jumpCooldown;
     public float airMultiplier;
@@ -36,7 +53,10 @@ public class PlayerMovement : MonoBehaviour
     {
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
         MyInputs();
-        if(grounded)
+        SpeedControl();
+        StateHandler();
+
+        if (grounded)
         {
             rb.drag = groundDrag;
         }
@@ -44,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.drag = 0;
         }
-        SpeedControl();
+
     }
     void FixedUpdate()
     {
@@ -63,6 +83,23 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void StateHandler()
+    {
+        if(grounded && Input.GetKey(sprintKey))
+        {
+            state = MovementState.sprinting;
+            moveSpeed = sprintSpeed;
+        }
+        else if (grounded)
+        {
+            state = MovementState.walking;
+            moveSpeed = walkSpeed;
+        }
+        else
+        {
+            state = MovementState.air;
+        }
+    }
     private void MovePlayer()
     {
         //calculate movement direction
