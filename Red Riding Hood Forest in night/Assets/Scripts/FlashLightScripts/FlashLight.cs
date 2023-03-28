@@ -49,10 +49,17 @@ public class FlashLight : MonoBehaviour
 
     void Update()
     {
-        text.text = lifetime.ToString("0") + " %";
-        batteryText.text = batteries.ToString();
+        text.text = lifetime.ToString("0") + " % of flashlight";
+        if(batteries == 1)
+        {
+            batteryText.text = batteries.ToString() + " Battery";
+        }
+        if(batteries != 1)
+        {
+            batteryText.text = batteries.ToString() + " Batteries";
+        }
 
-        if(Input.GetKeyDown(KeyCode.F) && off)
+        if (Input.GetKeyDown(KeyCode.F) && off)
         {
             light.enabled = true;
             on = true;
